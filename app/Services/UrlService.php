@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Exceptions\Gateway\RecordNotFoundException;
 use App\Exceptions\InternalServerException;
 use App\Gateways\UrlGateway;
 use App\Models\Url;
@@ -40,22 +39,42 @@ class UrlService
      * @return Url
      * @throws InternalServerException
      */
-    public function getShortUrl(string $url): Url
+    public function getShortForUrl(string $url): Url
     {
-        try {
-            return $this->urlGateway->getByUrl($url);
-        } catch (RecordNotFoundException $e) {
-            $shortUrl = $this->generateShortUrl($url);
+        $urlModel = $this->urlGateway->getByUrl($url);
+
+        if ($urlModel->getId()) {
+            return $urlModel;
+        } else {
+            do {
+                $shortUrl = $this->generateShortUrl($url);
+            } while (!$this->isShortUrlUnique($shortUrl));
 
             return $this->urlGateway->create([
-                                          'url' => $url,
-                                          'short_url' => $shortUrl,
-                                      ]);
+                                                 'url' => $url,
+                                                 'short_url' => $shortUrl,
+                                             ]);
         }
     }
 
+    /**
+     * @param string $url
+     * @return string
+     */
     private function generateShortUrl(string $url): string
     {
         return hash("crc32", $url . time());
+    }
+
+    /**
+     * @param string $shortUrl
+     * @return string
+     * @throws InternalServerException
+     */
+    private function isShortUrlUnique(string $shortUrl): string
+    {
+        $urlModel = $this->urlGateway->getByShortUrl($shortUrl);
+
+        return empty($urlModel->getId());
     }
 }

@@ -26,7 +26,7 @@ class UrlController
     }
 
     /**
-     * Create ad
+     * Return short url
      *
      * @return string
      */
@@ -39,7 +39,7 @@ class UrlController
         } else {
             try {
                 $validData = $validation->getValidData();
-                $url = (new UrlService())->getShortUrl($validData['url']);
+                $url = (new UrlService())->getShortForUrl($validData['url']);
 
                 return $this->urlResponse->getSuccessResponse($url);
             } catch (Exception $e) {

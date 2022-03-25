@@ -67,7 +67,6 @@ class UrlGateway
      * @param string $url
      * @return Url
      * @throws InternalServerException
-     * @throws RecordNotFoundException
      */
     public function getByUrl(string $url): Url
     {
@@ -78,9 +77,30 @@ class UrlGateway
             $statement->bindValue(':url', $url);
             $statement->execute();
             $urlData = $statement->fetchAll()[0];
-            if (is_null($urlData)) {
-                throw new RecordNotFoundException(['url' => $url]);
-            }
+
+            return new Url($urlData);
+        } catch (PDOException $e) {
+            throw new InternalServerException();
+        }
+    }
+
+    /**
+     * Get model by short_url
+     *
+     * @param string $shortUrl
+     * @return Url
+     * @throws InternalServerException
+     */
+    public function getByShortUrl(string $shortUrl): Url
+    {
+        $statement = "SELECT * FROM $this->tableName WHERE `short_url` = :short_url";
+
+        try {
+            $statement = $this->db->prepare($statement);
+            $statement->bindValue(':short_url', $shortUrl);
+            $statement->execute();
+            $urlData = $statement->fetchAll()[0];
+
             return new Url($urlData);
         } catch (PDOException $e) {
             throw new InternalServerException();

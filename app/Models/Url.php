@@ -18,7 +18,7 @@ class Url
     /**
      * @return int
      */
-    public function getId() : int
+    public function getId() : ?int
     {
         return $this->id;
     }
@@ -26,7 +26,7 @@ class Url
     /**
      * @return string
      */
-    public function getUrl() : string
+    public function getUrl() : ?string
     {
         return $this->url;
     }
@@ -34,7 +34,7 @@ class Url
     /**
      * @return string
      */
-    public function getShortUrl() : string
+    public function getShortUrl() : ?string
     {
         return $this->shortUrl;
     }
